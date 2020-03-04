@@ -4,6 +4,8 @@
 # This file is subject to the license terms contained
 # in the license file that is distributed with this file.
 
+# 2020: XWare GmbH - changed to work with community edition
+
 # JasperReports Server command line tools.
 # init_databases. creates JRS repository database, and foodmart and sugarcrm if JRS_LOAD_SAMPLES = true
 # import: runs js-import based on import.properties file in given volume
@@ -104,7 +106,7 @@ init_databases() {
   echo "Database init status: administrative : $sawAdministrative , $DB_NAME : $sawJRSDBName , foodmart: $sawFoodmartDBName , sugarcrm $sawSugarCRMDBName"
   if [ "$sawJRSDBName" = "no" ]; then
     echo "Initializing $DB_NAME repository database"
-	execute_buildomatic set-pro-webapp-name create-js-db init-js-db-pro import-minimal-pro
+	execute_buildomatic set-ce-webapp-name create-js-db init-js-db-ce import-minimal-ce
 	
 	JRS_LOAD_SAMPLES=${JRS_LOAD_SAMPLES:-false}
 	  
@@ -124,7 +126,7 @@ init_databases() {
 							load-sugarcrm-db 
 		fi
 
-		execute_buildomatic import-sample-data-pro
+		execute_buildomatic import-sample-data-ce
 	fi
   else
     echo "$DB_NAME repository database already exists: not creating and loading it or samples"

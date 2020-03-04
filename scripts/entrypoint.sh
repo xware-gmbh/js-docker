@@ -4,6 +4,8 @@
 # This file is subject to the license terms contained
 # in the license file that is distributed with this file.
 
+# 2020: XWare GmbH - changed to work with community edition
+
 # This script sets up and runs JasperReports Server on container start.
 # Default "run" command, set in Dockerfile, executes run_jasperserver.
 # Use jasperserver-pro-cmdline to initialize the repository database
@@ -20,7 +22,7 @@ run_jasperserver() {
   # Because default_master.properties could change on any launch,
   # always do deploy-webapp-pro.
 
-  execute_buildomatic deploy-webapp-pro
+  execute_buildomatic deploy-webapp-cp
 
   # setup phantomjs
   config_phantomjs
@@ -62,7 +64,7 @@ config_phantomjs() {
     PATH_PHANTOM='\/usr\/local\/bin\/phantomjs'
     PATTERN1='com.jaspersoft.jasperreports'
     PATTERN2='phantomjs.executable.path'
-    cd $CATALINA_HOME/webapps/jasperserver-pro/WEB-INF
+    cd $CATALINA_HOME/webapps/jasperserver/WEB-INF
     sed -i -r "s/(.*)($PATTERN1.highcharts.$PATTERN2=)(.*)/\2$PATH_PHANTOM/" \
       classes/jasperreports.properties
     sed -i -r "s/(.*)($PATTERN1.fusion.$PATTERN2=)(.*)/\2$PATH_PHANTOM/" \

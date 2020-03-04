@@ -10,6 +10,7 @@
 # ARG TOMCAT_BASE_IMAGE=tomcat:9.0.17-jre8
 
 # Certified version of Tomcat for JasperReports Server 7.5.0 commercial editions
+#ARG TOMCAT_BASE_IMAGE=tomcat:9.0.31-jdk8-openjdk
 ARG TOMCAT_BASE_IMAGE=tomcat:9.0.27-jdk11-openjdk
 FROM ${TOMCAT_BASE_IMAGE}
 
@@ -30,7 +31,7 @@ ENV HTTP_PORT             ${HTTP_PORT:-8080}
 ENV HTTPS_PORT             ${HTTPS_PORT:-8443}
 ENV POSTGRES_JDBC_DRIVER_VERSION ${POSTGRES_JDBC_DRIVER_VERSION:-42.2.5}
 ENV JASPERREPORTS_SERVER_VERSION ${JASPERREPORTS_SERVER_VERSION:-7.5.0}
-ENV EXPLODED_INSTALLER_DIRECTORY ${EXPLODED_INSTALLER_DIRECTORY:-resources/jasperreports-server-pro-$JASPERREPORTS_SERVER_VERSION-bin}
+ENV EXPLODED_INSTALLER_DIRECTORY ${EXPLODED_INSTALLER_DIRECTORY:-resources/jasperreports-server-cp-$JASPERREPORTS_SERVER_VERSION-bin}
 
 # This Dockerfile requires an exploded JasperReports Server WAR file installer file 
 # EXPLODED_INSTALLER_DIRECTORY (default jasperreports-server-bin/) directory below the Dockerfile.
@@ -38,7 +39,7 @@ ENV EXPLODED_INSTALLER_DIRECTORY ${EXPLODED_INSTALLER_DIRECTORY:-resources/jaspe
 RUN mkdir -p /usr/src/jasperreports-server
 
 # get the WAR and license
-COPY ${EXPLODED_INSTALLER_DIRECTORY}/jasperserver-pro $CATALINA_HOME/webapps/jasperserver-pro/
+COPY ${EXPLODED_INSTALLER_DIRECTORY}/jasperserver $CATALINA_HOME/webapps/jasperserver/
 COPY ${EXPLODED_INSTALLER_DIRECTORY}/TIB* /usr/src/jasperreports-server/
 
 # Ant
@@ -56,6 +57,16 @@ COPY ${EXPLODED_INSTALLER_DIRECTORY}/buildomatic/conf_source /usr/src/jasperrepo
 COPY ${EXPLODED_INSTALLER_DIRECTORY}/buildomatic/target /usr/src/jasperreports-server/buildomatic/target/
 
 COPY scripts/* /
+
+# custom files
+COPY resources/log4j2.xml $CATALINA_HOME/webapps/jasperserver/WEB-INF/classes/
+COPY resources/resfactory.properties $CATALINA_HOME/webapps/jasperserver/WEB-INF/classes/
+COPY resources/mssql-jdbc-7.4.1.jre8.jar /usr/src/jasperreports-server/buildomatic/conf_source/db/app-srv-jdbc-drivers/mssql-jdbc-7.4.1.jre8.jar
+
+#wohin mit diesen JARS??
+ADD ./resources/Calibri.jar /usr/lib/jvm/java-11-openjdk-amd64/jre/lib/fonts/
+ADD ./resources/OCRB.jar /usr/lib/jvm/java-11-openjdk-amd64/jre/lib/fonts/
+
 
 RUN echo "apt-get" && \
     echo "nameserver 8.8.8.8" | tee /etc/resolv.conf > /dev/null && \

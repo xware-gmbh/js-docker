@@ -4,6 +4,8 @@
 # This file is subject to the license terms contained
 # in the license file that is distributed with this file.
 
+# 2020: XWare GmbH - changed to work with community edition
+
 # This script sets up and runs JasperReports Server on container start.
 # Default "run" command, set in Dockerfile, executes run_jasperserver.
 # If webapps/jasperserver-pro does not exist, run_jasperserver 
@@ -19,7 +21,7 @@ set -e
 export BUILDOMATIC_MODE=script
 
 BUILDOMATIC_HOME=${BUILDOMATIC_HOME:-/usr/src/jasperreports-server/buildomatic}
-MOUNTS_HOME=${MOUNTS_HOME:-/usr/local/share/jasperserver-pro}
+MOUNTS_HOME=${MOUNTS_HOME:-/usr/local/share/jasperserver-cp}
 
 KEYSTORE_PATH=${KEYSTORE_PATH:-${MOUNTS_HOME}/keystore}
 export ks=$KEYSTORE_PATH
@@ -41,11 +43,12 @@ initialize_deploy_properties() {
   echo "Current keystore files in $KEYSTORE_PATH"
   # echo $JRSKS_PATH_FILES
   if [ ! -d ${KEYSTORE_PATH} ] ; then
-    mkdir ${KEYSTORE_PATH}
+    #mkdir ${KEYSTORE_PATH}
+	echo "KEYSTORE_PATH is ignored"
   fi
 
   if [ ! -f "$KEYSTORE_PATH/.jrsks" -o ! -f "$KEYSTORE_PATH/.jrsksp" ]; then
-      ls -a ${KEYSTORE_PATH}
+      #ls -a ${KEYSTORE_PATH}
 	  echo ".jrsks missing in $KEYSTORE_PATH. They will be created"
   fi
 
@@ -212,8 +215,9 @@ config_license() {
   # load license file from volume
   JRS_LICENSE_FINAL=${JRS_LICENSE:-${MOUNTS_HOME}/license}
   if [ ! -f "$JRS_LICENSE_FINAL/jasperserver.license" ]; then
-	echo "No license file in $JRS_LICENSE_FINAL. Exiting.,..."
-    exit 1
+	#echo "No license file in $JRS_LICENSE_FINAL. Exiting.,..."
+	echo "skip test for license file"
+    #exit 1
   else
     echo "Used license at $JRS_LICENSE_FINAL"
 	cp $JRS_LICENSE_FINAL/jasperserver.license ~
@@ -236,17 +240,22 @@ execute_buildomatic() {
     # This behaviour does not work if mounted volumes are used.
     # Using unzip to populate webapp directory and non-destructive
     # targets for configuration
-    if [ $i == "deploy-webapp-pro" ]; then
+    if [ $i == "deploy-webapp-cp" ]; then
       ./js-ant \
-        set-pro-webapp-name \
-        deploy-webapp-datasource-configs \
-        deploy-jdbc-jar \
-        -DwarTargetDir=$CATALINA_HOME/webapps/jasperserver-pro
+        set-ce-webapp-name \
+		deploy-webapp-datasource-configs \
+		deploy-jdbc-jar \
+        -DwarTargetDir=$CATALINA_HOME/webapps/jasperserver
+	  
+	  echo "********************************"
+	  #ls $CATALINA_HOME/webapps/jasperserver/WEB-INF -a
+	  #cat $CATALINA_HOME/webapps/jasperserver/WEB-INF/log4j2.properties
+	  echo "********************************"
     else
       # warTargetDir webaAppName are set as
       # workaround for database configuration regeneration
       ./js-ant $i \
-        -DwarTargetDir=$CATALINA_HOME/webapps/jasperserver-pro
+        -DwarTargetDir=$CATALINA_HOME/webapps/jasperserver
     fi
   done
 }
