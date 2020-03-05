@@ -2,6 +2,10 @@
 # This file is subject to the license terms contained
 # in the license file that is distributed with this file.
 
+# ***************************************************
+# XWare GmbH: changed to work with community edition
+# ***************************************************
+
 # Tomcat official Docker Hub images are not using Oracle anymore, hence the rename
 #FROM tomcat:9.0-jre8
 
@@ -80,23 +84,24 @@ RUN echo "apt-get" && \
     rm -rf $CATALINA_HOME/webapps/manager && \
     #
     #echo "unzip JasperReports Server WAR to Tomcat" && \
-    #unzip -o -q /usr/src/jasperreports-server/jasperserver-pro.war \
-    #    -d $CATALINA_HOME/webapps/jasperserver-pro > /dev/null && \
-    #rm -f /usr/src/jasperreports-server/jasperserver-pro.war && \
+    #unzip -o -q /usr/src/jasperreports-server/jasperserver.war \
+    #    -d $CATALINA_HOME/webapps/jasperserver > /dev/null && \
+    #rm -f /usr/src/jasperreports-server/jasperserver.war && \
     #
     chmod +x /usr/src/jasperreports-server/buildomatic/js-* && \
     chmod +x /usr/src/jasperreports-server/apache-ant/bin/* && \
     java -version && \
 # Extract phantomjs, move to /usr/local/share/phantomjs, link to /usr/local/bin.
 # Comment out if phantomjs not required.
-    # echo "nameserver 8.8.8.8" | tee /etc/resolv.conf > /dev/null && \
-    wget "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2" \
-        -O /tmp/phantomjs.tar.bz2 --no-verbose && \
-    tar -xjf /tmp/phantomjs.tar.bz2 -C /tmp && \
-    rm -f /tmp/phantomjs.tar.bz2 && \
-    mv /tmp/phantomjs*linux-x86_64 /usr/local/share/phantomjs && \
-    ln -sf /usr/local/share/phantomjs/bin/phantomjs /usr/local/bin && \
-    rm -rf /tmp/* && \
+    # echo "nameserver 8.8.8.8" | tee /etc/resolv.conf > /dev/null && \    
+#    wget "https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2" \
+#        -O /tmp/phantomjs.tar.bz2 --no-verbose && \
+#    tar -xjf /tmp/phantomjs.tar.bz2 -C /tmp && \
+#    rm -f /tmp/phantomjs.tar.bz2 && \
+#    mv /tmp/phantomjs*linux-x86_64 /usr/local/share/phantomjs && \
+#    ln -sf /usr/local/share/phantomjs/bin/phantomjs /usr/local/bin && \
+#    rm -rf /tmp/* && \
+
 # In case you wish to download from a different location you can manually
 # download the archive and copy from resources/ at build time. Note that you
 # also # need to comment out the preceding RUN command

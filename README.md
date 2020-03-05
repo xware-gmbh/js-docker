@@ -3,8 +3,8 @@
 # Table of contents
 
 1. [Introduction](#introduction)
-1. [Purpose](#purpose
-   1. [Changes](#changes
+1. [Purpose](#purpose)
+   1. [Changes](#changes)
 
 # Introduction
 
@@ -25,4 +25,13 @@ The page from TIBCO handles the pro version from jasperreport only. This page ai
 - add resfactory.properties to prevent error message on startup
 - add jdbc driver for mssql
 - add some fonts
+- disable phantomjs
 
+# Docker Image
+A docker image can be retrieved from jmurihub (jasperserver-cp and jasperserver-cp-cmdline)
+
+# Pitfalls
+
+## Login not possible
+
+[Howto](https://community.jaspersoft.com/wiki/how-reset-superuser-password)

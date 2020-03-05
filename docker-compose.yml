@@ -9,7 +9,7 @@ version: '2'
 
 services:
   jasperserver-cp:
-    image: "jasperserver-cp:${JASPERREPORTS_SERVER_VERSION}"
+    image: "jmurihub/jasperserver-cp:${JASPERREPORTS_SERVER_VERSION}"
     
     build:
       context: .
@@ -19,7 +19,7 @@ services:
     
     # expose port on the host
     ports:
-      - 8090:8080
+      - 8080:8080
       - 8493:8443
     
     # set depends on js_database Postgresql service
@@ -34,9 +34,9 @@ services:
       #- DB_HOST=jasperserver_pro_repository
       # - JRS_LOAD_SAMPLES=true
 
-    #volumes:
+    volumes:
       # where jasperserver.license file is. Otherwise uses temporary license
-      #- /C/Users/swood/Documents/License:/usr/local/share/jasperserver-pro/license 
+      - /C/xtra/datastore/docker/Documents/License:/usr/local/share/jasperserver-cp/license 
       
       # zip files in alphabetical order exploded into webapps/jasperserver-pro
       #- jrs_customization:/usr/local/share/jasperserver-pro/customization
@@ -51,7 +51,7 @@ services:
       # As of JasperReports Server 7.5, this volume :
       #   - saves .jrsks and .jrsksp files if they are created
       #   - provides access to pre-existing keystore related files
-      #- /C/Users/swood/Documents/Docker/keystore:/usr/local/share/jasperserver-pro/keystore
+      - /C/xtra/datastore/docker/keystore:/usr/local/share/jasperserver-cp/keystore
       
       # default_master_additional.properties file added to default_master.properties
       # see "To install the WAR file using js-install scripts" in JasperReports Server Installation Guide
@@ -81,7 +81,7 @@ services:
     cpu_shares: 256
   
   jasperserver-cp-cmdline:
-    image: "jasperserver-cp-cmdline:${JASPERREPORTS_SERVER_VERSION}"
+    image: "jmurihub/jasperserver-cp-cmdline:${JASPERREPORTS_SERVER_VERSION}"
     
     build:
       context: .
@@ -101,9 +101,9 @@ services:
       #- DB_HOST=jasperserver_pro_repository
       #- JRS_LOAD_SAMPLES=true
 
-    #volumes:
+    volumes:
       # where jasperserver.license file is. Otherwise uses temporary license
-      #- /C/Users/swood/Documents/License:/usr/local/share/jasperserver-pro/license 
+      - /C/xtra/datastore/docker/Documents/License:/usr/local/share/jasperserver-cp/license 
       
       # zip files in alphabetical order exploded into webapps/jasperserver-pro
       #- jrs_customization:/usr/local/share/jasperserver-pro/customization
@@ -118,7 +118,7 @@ services:
       # As of JasperReports Server 7.5, this volume :
       #   - saves .jrsks and .jrsksp files if they are created
       #   - provides access to pre-existing keystore related files
-      #- /C/Users/swood/Documents/Docker/keystore:/usr/local/share/jasperserver-pro/keystore
+      - /C/xtra/datastore/docker/keystore:/usr/local/share/jasperserver-cp/keystore
       
       # default_master_additional.properties file added to default_master.properties
       # see "To install the WAR file using js-install scripts" in JasperReports Server Installation Guide

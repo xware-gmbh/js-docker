@@ -43,7 +43,7 @@ initialize_deploy_properties() {
   echo "Current keystore files in $KEYSTORE_PATH"
   # echo $JRSKS_PATH_FILES
   if [ ! -d ${KEYSTORE_PATH} ] ; then
-    #mkdir ${KEYSTORE_PATH}
+    mkdir ${KEYSTORE_PATH}
 	echo "KEYSTORE_PATH is ignored"
   fi
 
@@ -65,7 +65,7 @@ dbPassword=$DB_PASSWORD
 js.dbName=$DB_NAME
 foodmart.dbName=foodmart
 sugarcrm.dbName=sugarcrm
-webAppName=jasperserver-pro
+webAppName=jasperserver
 ks=$KEYSTORE_PATH
 ksp=$KEYSTORE_PATH
 _EOL_

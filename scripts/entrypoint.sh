@@ -20,7 +20,7 @@ run_jasperserver() {
   test_database_connection
   
   # Because default_master.properties could change on any launch,
-  # always do deploy-webapp-pro.
+  # always do deploy-webapp-cp.
 
   execute_buildomatic deploy-webapp-cp
 
@@ -50,6 +50,7 @@ run_jasperserver() {
   JAVA_MIN_RAM_PCT=${JAVA_MIN_RAM_PERCENTAGE:-33.3}
   JAVA_MAX_RAM_PCT=${JAVA_MAX_RAM_PERCENTAGE:-80.0}
   JAVA_OPTS="$JAVA_OPTS -XX:-UseContainerSupport -XX:MinRAMPercentage=$JAVA_MIN_RAM_PCT -XX:MaxRAMPercentage=$JAVA_MAX_RAM_PCT"
+  JAVA_OPTS="$JAVA_OPTS -Duser.country=CH -Duser.timezone=Europe/Zurich -Duser.language=de"
   
   echo "JAVA_OPTS = $JAVA_OPTS"
   # start tomcat
@@ -91,7 +92,7 @@ config_ports_and_ssl() {
 
   if "$JRS_HTTPS_ONLY" = "true" ; then
     echo "Setting HTTPS only within JasperReports Server"
-    cd $CATALINA_HOME/webapps/jasperserver-pro/WEB-INF
+    cd $CATALINA_HOME/webapps/jasperserver/WEB-INF
     xmlstarlet ed --inplace \
       -N x="http://java.sun.com/xml/ns/j2ee" -u \
       "//x:security-constraint/x:user-data-constraint/x:transport-guarantee"\
@@ -168,7 +169,7 @@ apply_customizations() {
 		  else
 			echo "Unzipping $customization into JasperReports Server webapp"
 			unzip -o -q "$customization" \
-				-d $CATALINA_HOME/webapps/jasperserver-pro/
+				-d $CATALINA_HOME/webapps/jasperserver/
 		  fi
 		fi
 	  done
