@@ -40,6 +40,17 @@ ENV EXPLODED_INSTALLER_DIRECTORY ${EXPLODED_INSTALLER_DIRECTORY:-resources/jaspe
 # This Dockerfile requires an exploded JasperReports Server WAR file installer file 
 # EXPLODED_INSTALLER_DIRECTORY (default jasperreports-server-bin/) directory below the Dockerfile.
 
+# To use with pipeline - download ZIP from souurceforge (instead of having it manuall copied)
+# comment out for performance reason, if you build it locally
+#
+#RUN pwd && \
+#    echo ${EXPLODED_INSTALLER_DIRECTORY} && \
+#    wget "https://sourceforge.net/projects/jasperserver/files/JasperServer/JasperReports%20Server%20Community%20edition%20${JASPERREPORTS_SERVER_VERSION}/TIB_js-jrs-cp_${JASPERREPORTS_SERVER_VERSION}_bin.zip/download" \
+#         -O resources/jasperserver.zip  && \
+#    unzip ./resources/jasperserver.zip -d ${EXPLODED_INSTALLER_DIRECTORY}/ && \
+#    rm ./resources/jasperserver.zip && \
+#    unzip ${EXPLODED_INSTALLER_DIRECTORY}/jasperserver.war
+
 RUN mkdir -p /usr/src/jasperreports-server
 
 # get the WAR and license
@@ -115,6 +126,16 @@ RUN echo "apt-get" && \
     # echo "nameserver 8.8.8.8" | tee /etc/resolv.conf > /dev/null && \
     wget "https://jdbc.postgresql.org/download/postgresql-${POSTGRES_JDBC_DRIVER_VERSION}.jar"  \
         -P /usr/src/jasperreports-server/buildomatic/conf_source/db/postgresql/jdbc --no-verbose && \
+
+# enable Jasperserver for WebServices as DataSource
+# Add WebServiceDataSource plugin
+    wget https://community.jaspersoft.com/sites/default/files/releases/jaspersoft_webserviceds_v1.5.zip \
+         -O /tmp/jasper.zip && \
+    unzip /tmp/jasper.zip -d /tmp/ && \
+    cp -rfv /tmp/JRS/WEB-INF/* $CATALINA_HOME/webapps/jasperserver/WEB-INF/ && \
+    sed -i 's/queryLanguagesPro/queryLanguagesCe/g' $CATALINA_HOME/webapps/jasperserver/WEB-INF/applicationContext-WebServiceDataSource.xml && \
+    rm -rf /tmp/* &&\
+
 #
 # Configure tomcat for SSL by default with a self-signed certificate.
 # Option to set up JasperReports Server to use HTTPS only.
