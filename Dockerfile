@@ -79,9 +79,11 @@ COPY resources/resfactory.properties $CATALINA_HOME/webapps/jasperserver/WEB-INF
 COPY resources/mssql-jdbc-7.4.1.jre8.jar /usr/src/jasperreports-server/buildomatic/conf_source/db/app-srv-jdbc-drivers/mssql-jdbc-7.4.1.jre8.jar
 
 #wohin mit diesen JARS??
-ADD ./resources/Calibri.jar /usr/lib/jvm/java-11-openjdk-amd64/jre/lib/fonts/
-ADD ./resources/OCRB.jar /usr/lib/jvm/java-11-openjdk-amd64/jre/lib/fonts/
-
+#ADD ./resources/Calibri.jar /usr/local/openjdk-11/lib/fonts/
+#ADD ./resources/OCRB.jar /usr/lib/jvm/java-11-openjdk-amd64/jre/lib/fonts/
+COPY resources/Calibri.jar $CATALINA_HOME/webapps/jasperserver/WEB-INF/lib/
+COPY resources/OCRB.jar $CATALINA_HOME/webapps/jasperserver/WEB-INF/lib/
+COPY resources/TradeGothic.jar $CATALINA_HOME/webapps/jasperserver/WEB-INF/lib/
 
 RUN echo "apt-get" && \
     echo "nameserver 8.8.8.8" | tee /etc/resolv.conf > /dev/null && \
