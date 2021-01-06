@@ -6,7 +6,7 @@
 
 # This script sets up and runs JasperReports Server on container start.
 # Default "run" command, set in Dockerfile, executes run_jasperserver.
-# Use jasperserver-pro-cmdline to initialize the repository database
+# Use jasperserver-cmdline to initialize the repository database
 
 # Sets script to fail if any command fails.
 set -e
@@ -56,7 +56,7 @@ config_ports_and_ssl() {
 
   if "$JRS_HTTPS_ONLY" = "true"; then
     echo "Setting HTTPS only within JasperReports Server"
-    cd $CATALINA_HOME/webapps/jasperserver-pro/WEB-INF
+    cd $CATALINA_HOME/webapps/jasperserver/WEB-INF
     xmlstarlet ed --inplace \
       -N x="http://java.sun.com/xml/ns/j2ee" -u \
       "//x:security-constraint/x:user-data-constraint/x:transport-guarantee" \
@@ -109,7 +109,7 @@ apply_customizations() {
   # unpack zips (if exist) from path
   # ${MOUNTS_HOME}/customization
   # to JasperReports Server web application path
-  # $CATALINA_HOME/webapps/jasperserver-pro/
+  # $CATALINA_HOME/webapps/jasperserver/
   # file sorted with natural sort
   JRS_CUSTOMIZATION=${JRS_CUSTOMIZATION:-${MOUNTS_HOME}/customization}
   if [ -d "$JRS_CUSTOMIZATION" ]; then
@@ -130,9 +130,9 @@ apply_customizations() {
           cd ..
           rm -rf "${customization##*/}"
         else
-          echo "Unzipping $customization into JasperReports Server webapp $CATALINA_HOME/webapps/jasperserver-pro"
+          echo "Unzipping $customization into JasperReports Server webapp $CATALINA_HOME/webapps/jasperserver"
           unzip -o "$customization" \
-            -d $CATALINA_HOME/webapps/jasperserver-pro/
+            -d $CATALINA_HOME/webapps/jasperserver/
         fi
       fi
     done

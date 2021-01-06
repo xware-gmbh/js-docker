@@ -58,9 +58,9 @@ fi
 if [ "$CHROMIUM_CMD" != "Not" ]; then
   echo "$CHROMIUM_CMD available. Configuring JasperReports Server to use it"
   sed -i -r "s/^chrome.path=(.*)/chrome.path=$CHROMIUM_CMD/" \
-  $CATALINA_HOME/webapps/jasperserver-pro/WEB-INF/js.config.properties
-  cat $CATALINA_HOME/webapps/jasperserver-pro/WEB-INF/js.config.properties | grep chrome.path=
-  echo 'net.sf.jasperreports.chrome.argument.no-sandbox=true' >>$CATALINA_HOME/webapps/jasperserver-pro//WEB-INF/classes/jasperreports.properties
+  $CATALINA_HOME/webapps/jasperserver/WEB-INF/js.config.properties
+  cat $CATALINA_HOME/webapps/jasperserver/WEB-INF/js.config.properties | grep chrome.path=
+  echo 'net.sf.jasperreports.chrome.argument.no-sandbox=true' >>$CATALINA_HOME/webapps/jasperserver//WEB-INF/classes/jasperreports.properties
 else
   echo "Chromium not available. Headless browser functionality will fail."
 fi
