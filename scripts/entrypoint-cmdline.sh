@@ -4,8 +4,6 @@
 # This file is subject to the license terms contained
 # in the license file that is distributed with this file.
 
-# 2020: XWare GmbH - changed to work with community edition
-
 # JasperReports Server command line tools.
 # init_databases. creates JRS repository database, and foodmart and sugarcrm if JRS_LOAD_SAMPLES = true
 # import: runs js-import based on import.properties file in given volume
@@ -15,7 +13,40 @@
 # Sets script to fail if any command fails.
 set -e
 
-. /common-environment.sh
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+. $DIR/common-environment.sh
+
+apply_customizations() {
+  # unpack zips (if exist) from path
+  # ${MOUNTS_HOME}/customization
+  # to buildomatic area
+  BUILDOMATIC_CUSTOMIZATION=${BUILDOMATIC_CUSTOMIZATION:-${MOUNTS_HOME}/buildomatic_customization}
+  if [ -d "$BUILDOMATIC__CUSTOMIZATION" ]; then
+	  echo "Deploying Customizations from $BUILDOMATIC__CUSTOMIZATION"
+
+	  BUILDOMATIC__CUSTOMIZATION_FILES=`find $BUILDOMATIC__CUSTOMIZATION -iname "*zip" \
+		-exec readlink -f {} \; | sort -V`
+	  # find . -path ./lower -prune -o -name "*txt"
+	  for customization in $BUILDOMATIC__CUSTOMIZATION_FILES; do
+		if [[ -f "$customization" ]]; then
+		  if unzip -l $customization | grep install.sh ; then
+			echo "Installing ${customization##*/}"
+			mkdir -p "/tmp/buildomatic-installs/${customization##*/}"
+			unzip -o -q "$customization" -d "/tmp/buildomatic-installs/${customization##*/}"
+			cd "/tmp/buildomatic-installs/${customization##*/}"
+			chmod +x -R *.sh
+			./install.sh
+			cd ..
+			rm -rf "${customization##*/}"
+		  else
+			echo "Unzipping $customization into $BUILDOMATIC_HOME"
+			unzip -o -q "$customization" -d $BUILDOMATIC_HOME
+		  fi
+		fi
+	  done
+  fi
+}
 
 # tests for JasperReports Server repository, and foodmart and sugarcrm sample databases
 # and creates them if needed
@@ -106,7 +137,7 @@ init_databases() {
   echo "Database init status: administrative : $sawAdministrative , $DB_NAME : $sawJRSDBName , foodmart: $sawFoodmartDBName , sugarcrm $sawSugarCRMDBName"
   if [ "$sawJRSDBName" = "no" ]; then
     echo "Initializing $DB_NAME repository database"
-	execute_buildomatic set-ce-webapp-name create-js-db init-js-db-ce import-minimal-ce
+	execute_buildomatic set-pro-webapp-name create-js-db init-js-db-pro import-minimal-pro
 	
 	JRS_LOAD_SAMPLES=${JRS_LOAD_SAMPLES:-false}
 	  
@@ -126,7 +157,7 @@ init_databases() {
 							load-sugarcrm-db 
 		fi
 
-		execute_buildomatic import-sample-data-ce
+		execute_buildomatic import-sample-data-pro
 	fi
   else
     echo "$DB_NAME repository database already exists: not creating and loading it or samples"
@@ -316,6 +347,7 @@ export() {
     done
 }
 
+apply_customizations
 
 initialize_deploy_properties
 

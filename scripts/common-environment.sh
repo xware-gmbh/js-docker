@@ -4,8 +4,6 @@
 # This file is subject to the license terms contained
 # in the license file that is distributed with this file.
 
-# 2020: XWare GmbH - changed to work with community edition
-
 # This script sets up and runs JasperReports Server on container start.
 # Default "run" command, set in Dockerfile, executes run_jasperserver.
 # If webapps/jasperserver-pro does not exist, run_jasperserver 
@@ -17,8 +15,7 @@
 # Sets script to fail if any command fails.
 set -e
 
-# make buildomatic not ask interactive questions
-export BUILDOMATIC_MODE=script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 BUILDOMATIC_HOME=${BUILDOMATIC_HOME:-/usr/src/jasperreports-server/buildomatic}
 MOUNTS_HOME=${MOUNTS_HOME:-/usr/local/share/jasperserver-cp}
@@ -26,6 +23,32 @@ MOUNTS_HOME=${MOUNTS_HOME:-/usr/local/share/jasperserver-cp}
 KEYSTORE_PATH=${KEYSTORE_PATH:-${MOUNTS_HOME}/keystore}
 export ks=$KEYSTORE_PATH
 export ksp=$KEYSTORE_PATH
+
+# make buildomatic not ask interactive questions
+export BUILDOMATIC_MODE=script
+
+# Set Java options.
+# using G1GC - default Java GC in later versions of Java 8 and Java 11
+
+# setting heap based on info:
+# https://medium.com/adorsys/jvm-memory-settings-in-a-container-environment-64b0840e1d9e 
+# https://stackoverflow.com/questions/49854237/is-xxmaxramfraction-1-safe-for-production-in-a-containered-environment
+# https://www.oracle.com/technetwork/java/javase/8u191-relnotes-5032181.html
+  
+# Assuming we are using a Java 8 version beyond 8u191 or Java 11, we can use the Java 10+ JAVA_OPTS
+# for containers
+# Assuming a minimum of 3GB for the container => a max of 2.4GB for heap
+# defaults to 33/3% Min, 80% Max
+
+export JAVA_MIN_RAM_PCT=${JAVA_MIN_RAM_PERCENTAGE:-33.3}
+export JAVA_MAX_RAM_PCT=${JAVA_MAX_RAM_PERCENTAGE:-80.0}
+
+# Add Java options to suppress Groovy related warning message for Jaspersoft running Java 11
+
+export JAVA_OPTS="$JAVA_OPTS -XX:-UseContainerSupport -XX:MinRAMPercentage=$JAVA_MIN_RAM_PCT -XX:MaxRAMPercentage=$JAVA_MAX_RAM_PCT  @$DIR/java11.opts"
+
+# additional options for Ant used by buildomatic
+export ANT_OPTS="$ANT_OPTS @$DIR/java11.opts"
 
 initialize_deploy_properties() {
   # license could fail
@@ -43,8 +66,8 @@ initialize_deploy_properties() {
   echo "Current keystore files in $KEYSTORE_PATH"
   # echo $JRSKS_PATH_FILES
   if [ ! -d ${KEYSTORE_PATH} ] ; then
-    mkdir ${KEYSTORE_PATH}
-	echo "KEYSTORE_PATH is ignored"
+    #mkdir ${KEYSTORE_PATH}
+	echo "KEYSTORE_PATH is ignored"	
   fi
 
   if [ ! -f "$KEYSTORE_PATH/.jrsks" -o ! -f "$KEYSTORE_PATH/.jrsksp" ]; then
@@ -65,7 +88,7 @@ dbPassword=$DB_PASSWORD
 js.dbName=$DB_NAME
 foodmart.dbName=foodmart
 sugarcrm.dbName=sugarcrm
-webAppName=jasperserver
+webAppName=jasperserver-pro
 ks=$KEYSTORE_PATH
 ksp=$KEYSTORE_PATH
 _EOL_
@@ -202,8 +225,8 @@ test_database_connection() {
 		break
 	  elif [[ $retry = 5 ]]; then
 		echo "Unable to get connection to $DB_TYPE at host ${DB_HOST} after 5 tries."
-		echo "##### Exiting #####"
-		exit 1
+		echo "skip test for license file"
+		#exit 1
 	  else
 		echo "Sleeping to try repository $DB_NAME of $DB_TYPE at host ${DB_HOST} connection again..." && sleep 15
 	  fi
@@ -215,9 +238,8 @@ config_license() {
   # load license file from volume
   JRS_LICENSE_FINAL=${JRS_LICENSE:-${MOUNTS_HOME}/license}
   if [ ! -f "$JRS_LICENSE_FINAL/jasperserver.license" ]; then
-	#echo "No license file in $JRS_LICENSE_FINAL. Exiting.,..."
-	echo "skip test for license file"
-    #exit 1
+	echo "No license file in $JRS_LICENSE_FINAL. Exiting.,..."
+    exit 1
   else
     echo "Used license at $JRS_LICENSE_FINAL"
 	cp $JRS_LICENSE_FINAL/jasperserver.license ~
@@ -243,14 +265,9 @@ execute_buildomatic() {
     if [ $i == "deploy-webapp-cp" ]; then
       ./js-ant \
         set-ce-webapp-name \
-		deploy-webapp-datasource-configs \
-		deploy-jdbc-jar \
+        deploy-webapp-datasource-configs \
+        deploy-jdbc-jar \
         -DwarTargetDir=$CATALINA_HOME/webapps/jasperserver
-	  
-	  echo "********************************"
-	  #ls $CATALINA_HOME/webapps/jasperserver/WEB-INF -a
-	  #cat $CATALINA_HOME/webapps/jasperserver/WEB-INF/log4j2.properties
-	  echo "********************************"
     else
       # warTargetDir webaAppName are set as
       # workaround for database configuration regeneration
