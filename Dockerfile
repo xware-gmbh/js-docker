@@ -149,7 +149,7 @@ RUN chmod +x /usr/src/jasperreports-server/scripts/*.sh && \
 # or use dynamic ports.
 EXPOSE ${HTTP_PORT} ${HTTPS_PORT}
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/src/jasperreports-server/scripts/entrypoint.sh"]
 
 # Default action executed by entrypoint script.
 CMD ["run"]

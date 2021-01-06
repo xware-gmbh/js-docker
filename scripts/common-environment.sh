@@ -225,8 +225,7 @@ test_database_connection() {
 		break
 	  elif [[ $retry = 5 ]]; then
 		echo "Unable to get connection to $DB_TYPE at host ${DB_HOST} after 5 tries."
-		echo "skip test for license file"
-		#exit 1
+		exit 1
 	  else
 		echo "Sleeping to try repository $DB_NAME of $DB_TYPE at host ${DB_HOST} connection again..." && sleep 15
 	  fi
@@ -238,8 +237,9 @@ config_license() {
   # load license file from volume
   JRS_LICENSE_FINAL=${JRS_LICENSE:-${MOUNTS_HOME}/license}
   if [ ! -f "$JRS_LICENSE_FINAL/jasperserver.license" ]; then
-	echo "No license file in $JRS_LICENSE_FINAL. Exiting.,..."
-    exit 1
+	#echo "No license file in $JRS_LICENSE_FINAL. Exiting.,..."
+	echo "skip test for license file"
+    #exit 1
   else
     echo "Used license at $JRS_LICENSE_FINAL"
 	cp $JRS_LICENSE_FINAL/jasperserver.license ~
